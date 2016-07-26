@@ -82,8 +82,8 @@ trial{
 	}tactile_blackfix_event;
 	stimulus_event{		
 		picture fixred_pic;
-		deltat=296;
-		duration = 279;
+		deltat = 296;
+		duration = 280;
 		code = "redfix";
 	}tactile_redfix_event;
 }tactile_prestim_trial;
@@ -200,7 +200,7 @@ ITI_expcon.assign(advarrayfill(nr_of_trials,1,9));
 instruct_txt.set_caption(instruct1,true);
 showInstruct_so(instruct_txt,200);
 
-main_event.set_duration(visual_stim_duration-4);
+main_event.set_duration(visual_stim_duration-16-4);
 
 
 ######################################### block loop ########################
@@ -223,14 +223,17 @@ loop int b=1 until b>blockcon.count() begin
 	#wait_pic.add_part(wait_txt,0,-200);
 	pic1.present();
 	
+	ITI_expcon.shuffle();
+	
 	/*int resp3 = response_manager.total_response_count(3);
 	loop until resp3 < response_manager.total_response_count(3) begin end;
 	
 	wait_pic.remove_part(1);
 	wait_pic.present();
 	*/
-	int nr_pulses = pulse_manager.main_pulse_count();
-	loop until pulse_manager.main_pulse_count() > nr_pulses begin end;
+	
+	int nr_pulses = pulse_manager.main_pulse_count();	
+	loop until pulse_manager.main_pulse_count() > nr_pulses begin end;	
 
 	######################################### trial loop ########################
 	loop int t=1; until t>nr_of_trials begin
@@ -275,7 +278,7 @@ loop int b=1 until b>blockcon.count() begin
 				stim_pic.add_part(images[images_list_index][VisStim_counters[images_list_index]],eccentricity,0);
 			end;
 			
-			post_event.set_duration(current_ITI_duration-(600+visual_stim_duration+4));
+			post_event.set_duration(current_ITI_duration-(600+visual_stim_duration+16+4));
 			
 			##########################################	vis stim
 			main_trial.present();
@@ -297,7 +300,7 @@ loop int b=1 until b>blockcon.count() begin
 					RT = (response_manager.get_response_data(resps+1).time() - slowstarttime)+visual_stim_duration;
 				end;
 				slow=true;
-				post_event.set_duration(current_ITI_duration - (600+visual_stim_duration + slow_pic_duration +4));
+				post_event.set_duration(current_ITI_duration - (600+visual_stim_duration + slow_pic_duration + 16 + 4));
 			end;
 			
 			###########################
@@ -341,10 +344,11 @@ loop int b=1 until b>blockcon.count() begin
 			
 			#fixblack_pic.present();
 			logfile.add_event_entry("ITI1");
-			wait_interval(tactile_response_window - tactile_stim_duration - 4);
+			int ITI1_duration = tactile_response_window - tactile_stim_duration;
+			wait_interval(ITI1_duration - 4);
+						
+			int tactile_ITI_duration = current_ITI_duration - (600 + tactile_response_window +  4);
 			
-			
-			int tactile_ITI_duration = current_ITI_duration - (600 + tactile_stim_duration + 4);
 			if response_manager.total_response_count() > buttonpresses then
 				button = response_manager.get_response_data(buttonpresses+1).button();
 				RT = response_manager.get_response_data(buttonpresses+1).time() - stim_starttime;
